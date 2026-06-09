@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { QRCodeSVG } from 'qrcode.react';
 import ProfileSettings from "@/components/ProfileSettings";
 import ThemeToggle from "@/components/ThemeToggle";
+import InstructorAssignments from "@/components/InstructorAssignments";
 
 export default function InstructorDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -446,6 +447,7 @@ export default function InstructorDashboard() {
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           <button onClick={() => setActiveTab('schedule')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all border-l-4 ${activeTab === 'schedule' ? 'bg-emerald-50 text-emerald-600 border-emerald-600' : 'text-gray-600 border-transparent hover:bg-gray-50'}`}><span className="text-sm">📆</span> Lịch giảng dạy</button>
           <button onClick={() => setActiveTab('classes')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all border-l-4 ${activeTab === 'classes' ? 'bg-emerald-50 text-emerald-600 border-emerald-600' : 'text-gray-600 border-transparent hover:bg-gray-50'}`}><span className="text-sm">🏫</span> Quản lý lớp học</button>
+          <button onClick={() => setActiveTab('assignments')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all border-l-4 ${activeTab === 'assignments' ? 'bg-emerald-50 text-emerald-600 border-emerald-600' : 'text-gray-600 border-transparent hover:bg-gray-50'}`}><span className="text-sm">▦</span> Bài tập</button>
           <button onClick={() => setActiveTab('attendance')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all border-l-4 ${activeTab === 'attendance' ? 'bg-emerald-50 text-emerald-600 border-emerald-600' : 'text-gray-600 border-transparent hover:bg-gray-50'}`}><span className="text-sm">📋</span> Điểm danh</button>
           <button onClick={() => setActiveTab('history')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all border-l-4 ${activeTab === 'history' ? 'bg-emerald-50 text-emerald-600 border-emerald-600' : 'text-gray-600 border-transparent hover:bg-gray-50'}`}><span className="text-sm">🕒</span> Lịch sử điểm danh</button>
           <button onClick={() => setActiveTab('sessions')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-all border-l-4 ${activeTab === 'sessions' ? 'bg-emerald-50 text-emerald-600 border-emerald-600' : 'text-gray-600 border-transparent hover:bg-gray-50'}`}><span className="text-sm">📅</span> Quản lý buổi học</button>
@@ -468,14 +470,14 @@ export default function InstructorDashboard() {
         <div className="bg-emerald-500 px-8 py-2 text-white/80 text-sm flex items-center shrink-0 shadow-sm">
           <span>Dashboard</span> <span className="mx-2">/</span>
           <span className="font-semibold text-white">
-            {activeTab === 'classes' ? 'Quản lý lớp học' : activeTab === 'attendance' ? 'Điểm danh' : activeTab === 'history' ? 'Lịch sử điểm danh' : activeTab === 'sessions' ? 'Quản lý buổi học' : activeTab === 'schedule' ? 'Lịch giảng dạy' : activeTab === 'profile' ? 'Thông tin cá nhân' : 'Lịch sử lương'}
+            {activeTab === 'classes' ? 'Quản lý lớp học' : activeTab === 'assignments' ? 'Bài tập' : activeTab === 'attendance' ? 'Điểm danh' : activeTab === 'history' ? 'Lịch sử điểm danh' : activeTab === 'sessions' ? 'Quản lý buổi học' : activeTab === 'schedule' ? 'Lịch giảng dạy' : activeTab === 'profile' ? 'Thông tin cá nhân' : 'Lịch sử lương'}
           </span>
         </div>
 
         <div className="flex-1 p-6 overflow-y-auto relative">
 
           {/* CHỈ HIỆN CÁI HỘP TRẮNG NÀY KHI KHÔNG PHẢI LÀ TAB PROFILE */}
-          {activeTab !== 'profile' && (
+          {activeTab !== 'profile' && activeTab !== 'assignments' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full">
               
               {/* TAB 1: QUẢN LÝ LỚP HỌC */}
@@ -1012,6 +1014,10 @@ export default function InstructorDashboard() {
               )}
 
             </div>
+          )}
+
+          {activeTab === 'assignments' && (
+            <InstructorAssignments user={user} myClasses={myClasses} usersData={usersData} />
           )}
 
           {/* HIỂN THỊ ĐỘC LẬP TAB THÔNG TIN CÁ NHÂN KHI ĐƯỢC CHỌN */}

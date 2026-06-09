@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const path = require('path');
 const instructorRoutes = require('./routes/instructorRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -16,12 +17,14 @@ app.use(cors());
 
 // 2. Cho phép nhận dữ liệu dạng JSON
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/majors', require('./routes/majorRoutes'));
 app.use('/api/subjects', require('./routes/subjectRoutes'));
 app.use('/api/classes', require('./routes/classRoutes'));
 app.use('/api/attendance', require('./routes/attendanceRoutes'));
 app.use('/api/sessions', require('./routes/sessionRoutes'));
+app.use('/api/assignments', require('./routes/assignmentRoutes'));
 app.use('/api/instructor', instructorRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/user', userRoutes);

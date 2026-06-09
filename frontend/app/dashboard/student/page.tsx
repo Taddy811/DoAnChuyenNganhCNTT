@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Scanner } from '@yudiel/react-qr-scanner'; // Thư viện quét QR
 import ProfileSettings from "@/components/ProfileSettings";
 import ThemeToggle from "@/components/ThemeToggle";
+import StudentAssignments from "@/components/StudentAssignments";
 
 const scannerConstraints: MediaTrackConstraints = { facingMode: "environment" };
 
@@ -412,6 +413,7 @@ export default function StudentDashboard() {
   const activeTabLabel =
     activeTab === 'dashboard' ? 'Tổng quan' :
     activeTab === 'qr-scan' ? 'Quét QR' :
+    activeTab === 'assignments' ? 'Bài tập online' :
     activeTab === 'myclasses' ? 'Lớp học của tôi' :
     activeTab === 'schedule' ? 'Lịch học' :
     activeTab === 'history' ? 'Lịch sử điểm danh' :
@@ -420,6 +422,7 @@ export default function StudentDashboard() {
   const studentNavItems = [
     { id: 'dashboard', label: 'Tổng quan', icon: '⌂', action: () => setActiveTab('dashboard') },
     { id: 'qr-scan', label: 'Quét QR', icon: '▣', action: openQrScanner },
+    { id: 'assignments', label: 'Bài tập online', icon: '▦', action: () => setActiveTab('assignments') },
     { id: 'myclasses', label: 'Lớp học', icon: '▤', action: () => setActiveTab('myclasses') },
     { id: 'schedule', label: 'Lịch học', icon: '□', action: () => setActiveTab('schedule') },
     { id: 'history', label: 'Điểm danh', icon: '◷', action: () => { setActiveTab('history'); setHistoryFilterClassName(null); } },
@@ -550,6 +553,10 @@ export default function StudentDashboard() {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === 'assignments' && (
+            <StudentAssignments user={user} myClasses={myClasses} />
           )}
 
           {/* ================= TAB 1: DASHBOARD ================= */}
