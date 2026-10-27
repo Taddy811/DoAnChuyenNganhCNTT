@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+﻿/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -55,8 +55,12 @@ const isOverdue = (assignment: any) => new Date(assignment.dueAt).getTime() < Da
 
 const getSubmissionForStudent = (assignment: any, student: any) => (
   assignment?.submissions?.find((submission: any) => (
-    submission.studentName === student.name
-    || (student.username && submission.studentUsername === student.username)
+    !submission.isDeleted
+    && submission.status === "submitted"
+    && (
+      submission.studentName === student.name
+      || (student.username && submission.studentUsername === student.username)
+    )
   ))
 );
 
@@ -226,7 +230,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
   };
 
   const deleteAssignment = async (assignment: any) => {
-    if (!confirm(`Xóa bài tập "${assignment.title}"?`)) return;
+    if (!confirm(`Ẩn bài tập "${assignment.title}" khỏi danh sách?\n\nDữ liệu sẽ được ẩn khỏi danh sách nhưng vẫn được lưu trong hệ thống để tra cứu lịch sử.`)) return;
 
     try {
       setActionLoading(true);
@@ -234,7 +238,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Không thể xóa bài tập.");
 
-      setMessage({ type: "success", text: data.message || "Đã xóa bài tập." });
+      setMessage({ type: "success", text: data.message || "Đã ẩn dữ liệu thành công." });
       if (selectedAssignment?._id === assignment._id) setSelectedAssignment(null);
       await fetchAssignments();
     } catch (error) {
@@ -277,11 +281,11 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
     const overdue = isOverdue(selectedAssignment);
 
     return (
-      <div className="h-full overflow-y-auto bg-[#f4f7f6] p-4">
+      <div className="h-full overflow-y-auto bg-[#f4f5fb] p-0">
         <div className="max-w-7xl mx-auto space-y-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)] flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
             <div>
-              <button onClick={() => setSelectedAssignment(null)} className="text-sm font-bold text-emerald-700 hover:text-emerald-800 mb-2">
+              <button onClick={() => setSelectedAssignment(null)} className="text-sm font-bold text-violet-700 hover:text-violet-800 mb-2">
                 ← Quay lại danh sách
               </button>
               <h2 className="text-2xl font-black text-gray-900">{selectedAssignment.title}</h2>
@@ -302,9 +306,9 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
           )}
 
           <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-4 items-start">
-            <section className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="px-5 py-4 bg-gradient-to-r from-slate-900 to-emerald-950 text-white">
-                <div className="text-xs font-bold text-emerald-200 uppercase tracking-wide">Chi tiết bài tập</div>
+            <section className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden">
+              <div className="px-5 py-4 bg-gradient-to-r from-violet-600 to-indigo-500 text-white">
+                <div className="text-xs font-bold text-violet-100 uppercase tracking-wide">Chi tiết bài tập</div>
                 <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                   <div><span className="text-white/60">Hạn nộp</span><div className="font-extrabold">{formatDateTime(selectedAssignment.dueAt)}</div></div>
                   <div><span className="text-white/60">Điểm tối đa</span><div className="font-extrabold">{selectedAssignment.maxScore}</div></div>
@@ -331,7 +335,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
               </div>
             </section>
 
-            <aside className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <aside className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100">
                 <h3 className="font-black text-gray-900">Thống kê nộp bài</h3>
               </div>
@@ -352,7 +356,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
             </aside>
           </div>
 
-          <section className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <section className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
               <h3 className="font-black text-gray-900">Bài nộp của sinh viên</h3>
               <div className="text-xs font-bold text-gray-500">{submissionRows.length} sinh viên</div>
@@ -405,7 +409,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
                               ...prev,
                               [submission._id]: { ...(prev[submission._id] || { feedback: "" }), grade: event.target.value },
                             }))}
-                            className="w-20 rounded-md border border-gray-200 px-2 py-1.5 text-sm font-bold outline-none focus:border-emerald-500"
+                            className="w-20 rounded-md border border-gray-200 px-2 py-1.5 text-sm font-bold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
                           />
                         ) : "-"}
                       </td>
@@ -419,7 +423,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
                               [submission._id]: { ...(prev[submission._id] || { grade: "" }), feedback: event.target.value },
                             }))}
                             placeholder="Nhận xét cho sinh viên"
-                            className="w-full rounded-md border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-emerald-500"
+                            className="w-full rounded-md border border-gray-200 px-3 py-1.5 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
                           />
                         ) : "-"}
                       </td>
@@ -428,7 +432,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
                           <button
                             disabled={actionLoading}
                             onClick={() => updateGrade(submission)}
-                            className="px-3 py-1.5 rounded-md bg-emerald-600 text-white text-xs font-extrabold hover:bg-emerald-700 disabled:opacity-50"
+                            className="px-3 py-1.5 rounded-md bg-violet-600 text-white text-xs font-extrabold hover:bg-violet-700 disabled:opacity-50"
                           >
                             Chấm/cập nhật
                           </button>
@@ -453,7 +457,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
     return (
       <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
         <form onSubmit={handleSubmit} className="w-full max-w-3xl bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden max-h-[92vh] flex flex-col">
-          <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 to-teal-500 text-white flex items-center justify-between">
+          <div className="px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-500 text-white flex items-center justify-between">
             <div>
               <h3 className="text-lg font-black">{editingAssignment ? "Chỉnh sửa bài tập" : "Tạo bài tập mới"}</h3>
               <p className="text-xs text-white/80 font-semibold">Giao bài theo lớp học và theo dõi bài nộp của sinh viên.</p>
@@ -463,48 +467,48 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
           <div className="p-6 overflow-y-auto space-y-4">
             <div>
               <label className="block text-xs font-extrabold text-gray-500 uppercase mb-1">Tiêu đề bài tập</label>
-              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500" placeholder="Nộp bài tập Lab01" />
+              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" placeholder="Nộp bài tập Lab01" />
             </div>
             <div>
               <label className="block text-xs font-extrabold text-gray-500 uppercase mb-1">Mô tả/yêu cầu bài tập</label>
-              <textarea rows={7} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-emerald-500" placeholder={"Chỉ nộp 1 file nén duy nhất...\nTên file: HoVaTen_MSSV.zip\nPhần sản phẩm: tự thiết kế theo ý tưởng riêng"} />
+              <textarea rows={7} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" placeholder={"Chỉ nộp 1 file nén duy nhất...\nTên file: HoVaTen_MSSV.zip\nPhần sản phẩm: tự thiết kế theo ý tưởng riêng"} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-extrabold text-gray-500 uppercase mb-1">Lớp học áp dụng</label>
-                <select value={form.classId} onChange={(event) => handleClassChange(event.target.value)} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 bg-white">
+                <select value={form.classId} onChange={(event) => handleClassChange(event.target.value)} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 bg-white">
                   <option value="">Chọn lớp</option>
                   {myClasses.map((cls) => <option key={cls._id} value={cls._id}>{cls.name} - {cls.subject}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-extrabold text-gray-500 uppercase mb-1">Môn học</label>
-                <input value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500" />
+                <input value={form.subject} onChange={(event) => setForm({ ...form, subject: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" />
               </div>
               <div>
                 <label className="block text-xs font-extrabold text-gray-500 uppercase mb-1">Hạn nộp ngày/giờ</label>
-                <input type="datetime-local" value={form.dueAt} onChange={(event) => setForm({ ...form, dueAt: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500" />
+                <input type="datetime-local" value={form.dueAt} onChange={(event) => setForm({ ...form, dueAt: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" />
               </div>
               <div>
                 <label className="block text-xs font-extrabold text-gray-500 uppercase mb-1">Điểm tối đa</label>
-                <input type="number" min="0" step="0.1" value={form.maxScore} onChange={(event) => setForm({ ...form, maxScore: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500" />
+                <input type="number" min="0" step="0.1" value={form.maxScore} onChange={(event) => setForm({ ...form, maxScore: event.target.value })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100" />
               </div>
               <div>
                 <label className="block text-xs font-extrabold text-gray-500 uppercase mb-1">Trạng thái</label>
-                <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as "open" | "closed" })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-emerald-500 bg-white">
+                <select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as "open" | "closed" })} className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-semibold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 bg-white">
                   <option value="open">Đang mở</option>
                   <option value="closed">Đã đóng</option>
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-extrabold text-gray-500 uppercase mb-1">File đính kèm</label>
-                <input type="file" onChange={(event) => setAttachment(event.target.files?.[0] || null)} className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold outline-none focus:border-emerald-500 bg-white" />
+                <input type="file" onChange={(event) => setAttachment(event.target.files?.[0] || null)} className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm font-semibold outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 bg-white" />
               </div>
             </div>
           </div>
           <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2">
             <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md border border-gray-200 bg-white text-gray-600 text-sm font-bold hover:bg-gray-50">Hủy</button>
-            <button disabled={actionLoading} type="submit" className="px-5 py-2 rounded-md bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700 disabled:opacity-50">
+            <button disabled={actionLoading} type="submit" className="px-5 py-2 rounded-md bg-violet-600 text-white text-sm font-extrabold hover:bg-violet-700 disabled:opacity-50">
               {actionLoading ? "Đang lưu..." : editingAssignment ? "Cập nhật bài tập" : "Tạo bài tập"}
             </button>
           </div>
@@ -514,16 +518,19 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-[#f4f7f6] p-4">
+    <div className="h-full overflow-y-auto bg-[#f4f5fb] p-0">
       <div className="max-w-7xl mx-auto space-y-4">
-        <section className="rounded-xl overflow-hidden border border-emerald-900/20 bg-gradient-to-r from-slate-950 via-emerald-950 to-teal-900 text-white shadow-sm">
+        <section className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
           <div className="p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <div className="text-xs font-extrabold text-emerald-200 uppercase tracking-widest">Google Classroom style</div>
-              <h2 className="text-2xl font-black mt-1">Bài tập</h2>
-              <p className="text-sm text-white/70 mt-1">Giao bài, theo dõi bài nộp và chấm điểm theo từng lớp học.</p>
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700 border border-violet-100 font-black">▦</span>
+              <div>
+                <div className="text-xs font-extrabold text-violet-600 uppercase">Quản lý học tập</div>
+                <h2 className="text-2xl font-black mt-1 text-slate-900">Bài tập</h2>
+                <p className="text-sm text-slate-500 mt-1 font-semibold">Giao bài, theo dõi bài nộp và chấm điểm theo từng lớp học.</p>
+              </div>
             </div>
-            <button onClick={openCreateModal} className="px-5 py-3 rounded-lg bg-emerald-500 text-white text-sm font-black hover:bg-emerald-400 shadow-lg shadow-emerald-950/30">
+            <button onClick={openCreateModal} className="px-5 py-3 rounded-xl bg-violet-600 text-white text-sm font-black hover:bg-violet-700 shadow-lg shadow-violet-600/20">
               + Tạo bài tập
             </button>
           </div>
@@ -535,14 +542,14 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
           </div>
         )}
 
-        <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+        <section className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] p-4 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
           <div className="flex flex-col sm:flex-row gap-2">
-            <button onClick={() => setActiveSection("list")} className={`px-4 py-2 rounded-md text-sm font-extrabold ${activeSection === "list" ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>Bài tập đã giao</button>
-            <button onClick={openCreateModal} className={`px-4 py-2 rounded-md text-sm font-extrabold ${activeSection === "create" ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>Tạo bài tập</button>
-            <button onClick={() => setActiveSection("submissions")} className={`px-4 py-2 rounded-md text-sm font-extrabold ${activeSection === "submissions" ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>Bài nộp của sinh viên</button>
+            <button onClick={() => setActiveSection("list")} className={`px-4 py-2 rounded-md text-sm font-extrabold ${activeSection === "list" ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>Bài tập đã giao</button>
+            <button onClick={openCreateModal} className={`px-4 py-2 rounded-md text-sm font-extrabold ${activeSection === "create" ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>Tạo bài tập</button>
+            <button onClick={() => setActiveSection("submissions")} className={`px-4 py-2 rounded-md text-sm font-extrabold ${activeSection === "submissions" ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>Bài nộp của sinh viên</button>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <select value={selectedClassId} onChange={(event) => setSelectedClassId(event.target.value)} className="rounded-md border border-gray-200 px-3 py-2 text-sm font-bold text-gray-700 bg-white outline-none focus:border-emerald-500 min-w-[240px]">
+            <select value={selectedClassId} onChange={(event) => setSelectedClassId(event.target.value)} className="rounded-md border border-gray-200 px-3 py-2 text-sm font-bold text-gray-700 bg-white outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 min-w-[240px]">
               <option value="">Tất cả lớp phụ trách</option>
               {myClasses.map((cls) => <option key={cls._id} value={cls._id}>{cls.name} - {cls.subject}</option>)}
             </select>
@@ -557,7 +564,7 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
             <div className="text-3xl mb-3">▦</div>
             <h3 className="font-black text-gray-900">Chưa có bài tập nào</h3>
             <p className="text-sm text-gray-500 font-semibold mt-1">Hãy tạo bài tập đầu tiên cho lớp học của bạn.</p>
-            <button onClick={openCreateModal} className="mt-5 px-5 py-2.5 rounded-md bg-emerald-600 text-white text-sm font-extrabold hover:bg-emerald-700">Tạo bài tập</button>
+            <button onClick={openCreateModal} className="mt-5 px-5 py-2.5 rounded-md bg-violet-600 text-white text-sm font-extrabold hover:bg-violet-700">Tạo bài tập</button>
           </div>
         ) : (
           <section className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -566,12 +573,12 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
               const stats = assignment.stats || {};
 
               return (
-                <article key={assignment._id} className="rounded-xl border border-emerald-900/20 bg-slate-950 text-white overflow-hidden shadow-sm">
-                  <div className="p-5 bg-gradient-to-r from-slate-900 to-emerald-950">
+                <article key={assignment._id} className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-[0_12px_28px_rgba(15,23,42,0.06)] hover:border-violet-200 transition-colors">
+                  <div className="p-5 bg-gradient-to-r from-violet-600 to-indigo-500 text-white">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h3 className="text-lg font-black truncate">{assignment.title}</h3>
-                        <p className="text-sm text-emerald-100 font-semibold mt-1">{assignment.className} · {assignment.subject}</p>
+                        <p className="text-sm text-violet-100 font-semibold mt-1">{assignment.className} · {assignment.subject}</p>
                       </div>
                       <StatusBadge status={assignment.status} overdue={overdue} />
                     </div>
@@ -595,8 +602,8 @@ export default function InstructorAssignments({ user, myClasses, usersData }: In
                       <div className="text-sm font-bold text-amber-700 mt-1">{stats.gradedCount || 0}</div>
                     </div>
                   </div>
-                  <div className="px-5 py-4 bg-white border-t border-gray-100 flex flex-wrap justify-end gap-2">
-                    <button onClick={() => openDetail(assignment)} className="px-3 py-2 rounded-md bg-emerald-600 text-white text-xs font-extrabold hover:bg-emerald-700">Xem chi tiết</button>
+                  <div className="px-5 py-4 bg-slate-50 border-t border-gray-100 flex flex-wrap justify-end gap-2">
+                    <button onClick={() => openDetail(assignment)} className="px-3 py-2 rounded-md bg-violet-600 text-white text-xs font-extrabold hover:bg-violet-700">Xem chi tiết</button>
                     <button onClick={() => openEditModal(assignment)} className="px-3 py-2 rounded-md border border-gray-200 text-gray-600 text-xs font-extrabold hover:bg-gray-50">Sửa</button>
                     <button onClick={() => deleteAssignment(assignment)} className="px-3 py-2 rounded-md border border-red-100 text-red-600 text-xs font-extrabold hover:bg-red-50">Xóa</button>
                   </div>

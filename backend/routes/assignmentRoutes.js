@@ -28,8 +28,10 @@ const upload = multer({
 });
 
 router.get('/', assignmentController.getAssignments);
+router.get('/deleted', assignmentController.getDeletedAssignments);
 router.get('/:id', assignmentController.getAssignmentById);
 router.post('/', upload.single('attachment'), assignmentController.createAssignment);
+router.put('/:id/restore', assignmentController.restoreAssignment);
 router.put('/:id', upload.single('attachment'), assignmentController.updateAssignment);
 router.delete('/:id', assignmentController.deleteAssignment);
 router.post('/:id/submit', upload.single('submissionFile'), assignmentController.submitAssignment);

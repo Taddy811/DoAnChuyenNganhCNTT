@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const nodemailer = require('nodemailer');
+const { activeFilter, deletedFilter, buildSoftDeletePayload, restorePayload } = require('../utils/softDelete');
 
 const normalizeRole = (role) => {
   const value = String(role || '').trim().toLowerCase();
@@ -14,7 +15,7 @@ const normalizeRole = (role) => {
 };
 
 const normalizePassword = (password) => (
-  password === undefined || password === null || password === '' ? '123456' : String(password)
+  password === undefined || password === null || password === '' ? '123' : String(password)
 );
 
 const registerUser = async (req, res) => {
@@ -93,6 +94,17 @@ const loginUser = async (req, res) => {
 
     if (!user) return res.status(400).json({ message: 'Tài khoản không tồn tại!' });
 
+    const statusValue = String(user.status || '').trim().toLowerCase();
+    if (
+      user.isDeleted
+      || statusValue === 'deleted'
+      || statusValue === 'inactive'
+      || statusValue === 'không hoạt động'
+      || statusValue === 'khong hoat dong'
+    ) {
+      return res.status(403).json({ message: 'Tài khoản đã bị xóa hoặc không còn hoạt động' });
+    }
+
     const isMatch = String(password ?? '') === String(user.password ?? '');
     if (!isMatch) return res.status(400).json({ message: 'Mật khẩu không chính xác!' });
 
@@ -113,7 +125,19 @@ const loginUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const users = await User.find(activeFilter).select('-password').sort({ createdAt: -1 });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getDeletedUsers = async (req, res) => {
+  try {
+    const users = await User.find(deletedFilter)
+      .select('-password')
+      .populate('deletedBy', 'name username email')
+      .sort({ deletedAt: -1, updatedAt: -1 });
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -122,9 +146,19 @@ const getAllUsers = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndUpdate(req.params.id, buildSoftDeletePayload(req), { new: true }).select('-password');
     if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng' });
-    res.status(200).json({ message: 'Đã xoá người dùng thành công' });
+    res.status(200).json({ message: 'Đã ẩn dữ liệu thành công.', user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const restoreUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, restorePayload, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    res.status(200).json({ message: 'Khôi phục người dùng thành công.', user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -133,8 +167,8 @@ const deleteUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { name, username, email, phone, major, role } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.params.id, ...activeFilter },
       { name, username, email, phone, major, role: normalizeRole(role) },
       { new: true }
     ).select('-password');
@@ -150,7 +184,7 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, ...activeFilter });
 
     if (!user) {
       return res.status(404).json({ message: 'Email này chưa được đăng ký trong hệ thống!' });
@@ -209,6 +243,7 @@ const resetPassword = async (req, res) => {
       email,
       resetPasswordToken: otp,
       resetPasswordExpires: { $gt: Date.now() },
+      ...activeFilter,
     });
 
     if (!user) return res.status(400).json({ message: 'Mã OTP không hợp lệ hoặc đã hết hạn!' });
@@ -229,6 +264,8 @@ module.exports = {
   loginUser,
   getAllUsers,
   deleteUser,
+  getDeletedUsers,
+  restoreUser,
   updateUser,
   forgotPassword,
   resetPassword,

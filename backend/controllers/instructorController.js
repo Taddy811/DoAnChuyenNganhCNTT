@@ -1,6 +1,9 @@
 const Session = require('../models/Session');
+const Class = require('../models/Class');
+const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const { activeFilter } = require('../utils/softDelete');
 
 const secretKey = process.env.QR_SECRET || 'LMS_QR_SECRET_2026'; // Khóa bảo mật tạo QR
 
@@ -18,6 +21,14 @@ const startSession = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(classId) || !mongoose.Types.ObjectId.isValid(instructorId)) {
       return res.status(400).json({ message: 'Dữ liệu lớp học hoặc giảng viên không hợp lệ' });
     }
+
+    const [cls, instructor] = await Promise.all([
+      Class.findOne({ _id: classId, ...activeFilter }),
+      User.findOne({ _id: instructorId, role: 'instructor', ...activeFilter }),
+    ]);
+
+    if (!cls) return res.status(404).json({ message: 'Lớp học không còn hoạt động.' });
+    if (!instructor) return res.status(404).json({ message: 'Giảng viên không còn hoạt động.' });
 
     const session = await Session.create({
       classId,
@@ -41,7 +52,7 @@ const generateQR = async (req, res) => {
       return res.status(400).json({ message: 'Mã ca dạy không hợp lệ' });
     }
 
-    const session = await Session.findById(sessionId);
+    const session = await Session.findOne({ _id: sessionId, ...activeFilter });
     if (!session) return res.status(404).json({ message: 'Không tìm thấy ca dạy' });
     if (session.status === 'completed') {
       return res.status(400).json({ message: 'Ca dạy này đã kết thúc' });
@@ -58,7 +69,7 @@ const generateQR = async (req, res) => {
 const endSession = async (req, res) => {
   try {
     const { sessionId } = req.params;
-    const session = await Session.findById(sessionId);
+    const session = await Session.findOne({ _id: sessionId, ...activeFilter });
     
     if (!session) return res.status(404).json({ message: 'Không tìm thấy ca dạy' });
 

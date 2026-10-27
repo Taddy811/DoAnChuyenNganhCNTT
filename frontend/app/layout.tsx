@@ -1,22 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// 1. Đổi sang import font Inter
+import { Inter } from "next/font/google";
 
-// @ts-ignore
+
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// 2. Khai báo font Inter với subset "vietnamese"
+const inter = Inter({
+  subsets: ["latin", "vietnamese"], // ĐÂY LÀ CHÌA KHÓA SỬA LỖI FONT
+  variable: "--font-inter",
 });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 
 export const metadata: Metadata = {
-  title: "LMS E-LEARNING", // Đây là dòng bạn cần đổi
+  title: "E-LEARNING LMS",
   description: "Hệ thống quản lý học tập trực tuyến",
 };
 
@@ -26,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vn" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -46,9 +42,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      {/* 3. Áp dụng font Inter vào thẻ body */}
+      <body className={`${inter.className} ${inter.variable} antialiased`}>
         {children}
       </body>
     </html>

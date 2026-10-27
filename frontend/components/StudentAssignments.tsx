@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+﻿/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -26,8 +26,12 @@ const isOverdue = (assignment: any) => new Date(assignment.dueAt).getTime() < Da
 
 const getMySubmission = (assignment: any, user: any) => (
   assignment?.submissions?.find((submission: any) => (
-    submission.studentName === user?.name
-    || (user?.username && submission.studentUsername === user.username)
+    !submission.isDeleted
+    && submission.status === "submitted"
+    && (
+      submission.studentName === user?.name
+      || (user?.username && submission.studentUsername === user.username)
+    )
   ))
 );
 
@@ -186,11 +190,13 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
     const canUnsubmit = Boolean(submission) && !locked;
 
     return (
-      <div className="h-full overflow-y-auto bg-[#f4f7f6] p-4">
+      <div className="h-full overflow-y-auto bg-[#f4f5fb] p-0">
         <div className="max-w-7xl mx-auto space-y-4">
-          <button onClick={() => setSelectedAssignment(null)} className="text-sm font-bold text-emerald-700 hover:text-emerald-800">
-            ← Quay lại danh sách bài tập
-          </button>
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
+            <button onClick={() => setSelectedAssignment(null)} className="text-sm font-bold text-violet-700 hover:text-violet-800">
+              ← Quay lại danh sách bài tập
+            </button>
+          </div>
 
           {message.text && (
             <div className={`rounded-lg border px-4 py-3 text-sm font-bold ${message.type === "success" ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-red-50 text-red-600 border-red-100"}`}>
@@ -199,8 +205,8 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
           )}
 
           <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-5 items-start">
-            <main className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="h-28 bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-500 p-6 text-white flex items-end">
+            <main className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden">
+              <div className="h-28 bg-gradient-to-r from-violet-600 to-indigo-500 p-6 text-white flex items-end">
                 <div>
                   <h2 className="text-2xl font-black leading-tight">{selectedAssignment.title}</h2>
                   <p className="text-sm text-white/80 font-semibold mt-1">{selectedAssignment.className} · {selectedAssignment.subject}</p>
@@ -247,7 +253,7 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
             </main>
 
             <aside className="space-y-4">
-              <section className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <section className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden">
                 <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                   <h3 className="font-black text-gray-900">Bài tập của bạn</h3>
                   <StatusBadge status={status} />
@@ -283,7 +289,7 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
                           File đã chọn: {selectedFile.name}
                         </div>
                       )}
-                      <button disabled={actionLoading || !selectedFile} onClick={submitAssignment} className="w-full rounded-lg bg-emerald-600 px-4 py-3 text-sm font-black text-white hover:bg-emerald-700 disabled:opacity-50">
+                      <button disabled={actionLoading || !selectedFile} onClick={submitAssignment} className="w-full rounded-lg bg-violet-600 px-4 py-3 text-sm font-black text-white hover:bg-violet-700 disabled:opacity-50">
                         {submission ? "Nộp lại bài" : "Nộp bài"}
                       </button>
                     </div>
@@ -305,14 +311,14 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
                 </div>
               </section>
 
-              <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+              <section className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] p-5">
                 <h3 className="font-black text-gray-900 mb-3">Nhận xét riêng tư</h3>
                 <textarea
                   rows={4}
                   value={privateComment}
                   onChange={(event) => setPrivateComment(event.target.value)}
                   placeholder="Nhập ghi chú gửi giảng viên khi nộp bài..."
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-500"
+                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
                   disabled={locked}
                 />
                 <p className="text-xs font-semibold text-gray-400 mt-2">Nhận xét sẽ được gửi kèm lần nộp bài hiện tại.</p>
@@ -325,13 +331,16 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-[#f4f7f6] p-4">
+    <div className="h-full overflow-y-auto bg-[#f4f5fb] p-0">
       <div className="max-w-7xl mx-auto space-y-4">
-        <section className="rounded-xl overflow-hidden border border-emerald-900/20 bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-500 text-white shadow-sm">
-          <div className="p-5">
-            <div className="text-xs font-extrabold text-emerald-100 uppercase tracking-widest">Classwork</div>
-            <h2 className="text-2xl font-black mt-1">Bài tập online</h2>
-            <p className="text-sm text-white/80 mt-1">Xem bài tập được giao, nộp bài và theo dõi điểm giống Google Classroom.</p>
+        <section className="rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)]">
+          <div className="p-5 flex items-start gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-700 border border-violet-100 font-black">▦</span>
+            <div>
+              <div className="text-xs font-extrabold text-violet-600 uppercase">Không gian học tập</div>
+              <h2 className="text-2xl font-black mt-1 text-slate-900">Bài tập online</h2>
+              <p className="text-sm text-slate-500 mt-1 font-semibold">Xem bài tập được giao, nộp bài và theo dõi điểm trong hệ thống LMS.</p>
+            </div>
           </div>
         </section>
 
@@ -341,7 +350,7 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
           </div>
         )}
 
-        <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+        <section className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] p-4 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             {[
               ["all", `Tất cả (${counts.all || 0})`],
@@ -352,14 +361,14 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
               <button
                 key={key}
                 onClick={() => setStatusFilter(key as "all" | "pending" | "submitted" | "overdue")}
-                className={`px-4 py-2 rounded-md text-sm font-extrabold ${statusFilter === key ? "bg-emerald-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                className={`px-4 py-2 rounded-md text-sm font-extrabold ${statusFilter === key ? "bg-violet-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
               >
                 {label}
               </button>
             ))}
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <select value={selectedClassId} onChange={(event) => setSelectedClassId(event.target.value)} className="rounded-md border border-gray-200 px-3 py-2 text-sm font-bold text-gray-700 bg-white outline-none focus:border-emerald-500 min-w-[240px]">
+            <select value={selectedClassId} onChange={(event) => setSelectedClassId(event.target.value)} className="rounded-md border border-gray-200 px-3 py-2 text-sm font-bold text-gray-700 bg-white outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 min-w-[240px]">
               <option value="">Tất cả lớp học</option>
               {myClasses.map((cls) => <option key={cls._id} value={cls._id}>{cls.name} - {cls.subject}</option>)}
             </select>
@@ -382,7 +391,7 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
               const submission = getMySubmission(assignment, user);
 
               return (
-                <article key={assignment._id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:border-emerald-300 transition-colors">
+                <article key={assignment._id} className="bg-white rounded-2xl border border-slate-200 shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden hover:border-violet-300 transition-colors">
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
@@ -414,7 +423,7 @@ export default function StudentAssignments({ user, myClasses }: StudentAssignmen
                     <div className="text-xs font-semibold text-gray-500 truncate">
                       {submission?.grade !== undefined && submission?.grade !== null ? `Điểm: ${submission.grade}/${assignment.maxScore}` : "Mở chi tiết để nộp bài"}
                     </div>
-                    <button onClick={() => openDetail(assignment)} className="px-4 py-2 rounded-md bg-emerald-600 text-white text-xs font-extrabold hover:bg-emerald-700">
+                    <button onClick={() => openDetail(assignment)} className="px-4 py-2 rounded-md bg-violet-600 text-white text-xs font-extrabold hover:bg-violet-700">
                       Xem chi tiết
                     </button>
                   </div>

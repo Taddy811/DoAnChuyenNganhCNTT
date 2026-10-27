@@ -29,19 +29,16 @@ const applyTheme = (theme: Theme) => {
 };
 
 export default function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
 
   useEffect(() => {
-    const initialTheme = getInitialTheme();
-    setTheme(initialTheme);
-    applyTheme(initialTheme);
-  }, []);
+    applyTheme(theme);
+  }, [theme]);
 
   const toggleTheme = () => {
     const nextTheme = theme === "dark" ? "light" : "dark";
     setTheme(nextTheme);
     window.localStorage.setItem("theme", nextTheme);
-    applyTheme(nextTheme);
   };
 
   return (
@@ -50,9 +47,9 @@ export default function ThemeToggle() {
       onClick={toggleTheme}
       title={theme === "dark" ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}
       aria-label={theme === "dark" ? "Chuyển sang giao diện sáng" : "Chuyển sang giao diện tối"}
-      className="theme-toggle h-10 w-10 rounded-lg border border-white/30 bg-white/15 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/25 focus:outline-none focus:ring-2 focus:ring-white/60"
+      className="theme-toggle inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600 focus:outline-none focus:ring-4 focus:ring-violet-100"
     >
-      <span className="text-base leading-none">{theme === "dark" ? "☀️" : "🌙"}</span>
+      <span className="text-base leading-none">{theme === "dark" ? "☀" : "☾"}</span>
     </button>
   );
 }

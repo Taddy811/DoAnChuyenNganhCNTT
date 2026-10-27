@@ -1,6 +1,12 @@
 "use client";
-import { useState } from "react";
+
+import { ChangeEvent, FormEvent, useState } from "react";
 import Link from "next/link";
+
+type Message = {
+  type: "success" | "error" | "";
+  text: string;
+};
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -10,119 +16,189 @@ export default function RegisterPage() {
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "admin" 
+    role: "admin",
   });
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<Message>({ type: "", text: "" });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    
-    if(formData.password !== formData.confirmPassword) {
-        setMessage("❌ Mật khẩu xác nhận không khớp!");
-        return;
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setMessage({ type: "", text: "" });
+
+    if (formData.password !== formData.confirmPassword) {
+      setMessage({ type: "error", text: "Mật khẩu xác nhận không khớp." });
+      return;
     }
+
     try {
+      setIsLoading(true);
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            name: formData.name, 
-            username: formData.username,
-            email: formData.email, 
-            phone: formData.phone,
-            password: formData.password, 
-            role: formData.role 
+        body: JSON.stringify({
+          name: formData.name,
+          username: formData.username,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+          role: formData.role,
         }),
       });
-      
+
       const data = await res.json();
-      
       if (res.ok) {
-        setMessage("🎉 " + data.message);
+        setMessage({ type: "success", text: data.message || "Tạo tài khoản thành công." });
+        setFormData({
+          name: "",
+          username: "",
+          email: "",
+          phone: "",
+          password: "",
+          confirmPassword: "",
+          role: "admin",
+        });
       } else {
-        setMessage("❌ " + (data.error ? `Lỗi chi tiết: ${data.error}` : data.message));
+        setMessage({ type: "error", text: data.error ? `Lỗi chi tiết: ${data.error}` : data.message || "Không thể tạo tài khoản." });
       }
-    } catch (error) {
-      setMessage("❌ Lỗi mạng: Không thể kết nối với Backend!");
+    } catch {
+      setMessage({ type: "error", text: "Không thể kết nối với backend. Vui lòng kiểm tra máy chủ." });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleChange = (e: any) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-600 to-teal-500 flex items-center justify-center p-4 font-sans">
-      <div className="max-w-6xl w-full flex flex-col md:flex-row items-center gap-12 lg:gap-24">
-        
-        {/* CỘT TRÁI */}
-        <div className="hidden md:flex flex-col text-white w-1/2">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-3">LMS Pro</h1>
-          <p className="text-lg text-emerald-100 mb-10">Nền tảng học tập trực tuyến hàng đầu Việt Nam</p>
-          <h2 className="text-2xl font-bold mb-4">Bắt đầu hành trình học tập</h2>
-          <p className="mb-8 text-emerald-50 leading-relaxed">
-            Tham gia cùng hàng nghìn học viên để thành công trong việc học tập và phát triển sự nghiệp IT.
+    <main className="lms-auth-shell">
+      <Link href="/" className="lms-auth-home">
+        ← Trang chủ
+      </Link>
+
+      <section className="lms-auth-card lms-auth-card-wide">
+        <aside className="lms-auth-brand">
+          <span className="lms-logo-mark">L</span>
+          <p className="lms-kicker">Khởi tạo hệ thống</p>
+          <h1>Tạo tài khoản quản trị đầu tiên cho LMS.</h1>
+          <div className="lms-auth-points">
+            <span>Quản lý người dùng</span>
+            <span>Tạo lớp, môn học, chuyên ngành</span>
+            <span>Theo dõi toàn bộ hoạt động học tập</span>
+          </div>
+        </aside>
+
+        <div className="lms-auth-form-panel">
+          <div className="lms-form-heading">
+            <p className="lms-kicker">Đăng ký</p>
+            <h2>Tài khoản admin</h2>
+            <span>Form này dùng để tạo tài khoản quản trị hệ thống.</span>
+          </div>
+
+          {message.text && (
+            <div className={`lms-alert ${message.type === "success" ? "lms-alert-success" : "lms-alert-error"}`}>
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="lms-form-stack">
+            <div className="lms-form-grid">
+              <label>
+                <span>Họ và tên</span>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  value={formData.name}
+                  placeholder="Nguyễn Văn A"
+                  className="lms-input"
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label>
+                <span>Tên đăng nhập</span>
+                <input
+                  type="text"
+                  name="username"
+                  required
+                  value={formData.username}
+                  placeholder="admin01"
+                  className="lms-input"
+                  onChange={handleChange}
+                />
+              </label>
+            </div>
+
+            <label>
+              <span>Email</span>
+              <input
+                type="email"
+                name="email"
+                required
+                value={formData.email}
+                placeholder="admin@example.com"
+                className="lms-input"
+                onChange={handleChange}
+              />
+            </label>
+
+            <label>
+              <span>Số điện thoại</span>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                placeholder="0900000000"
+                className="lms-input"
+                onChange={handleChange}
+              />
+            </label>
+
+            <div className="lms-form-grid">
+              <label>
+                <span>Mật khẩu</span>
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  value={formData.password}
+                  className="lms-input"
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label>
+                <span>Xác nhận mật khẩu</span>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  required
+                  value={formData.confirmPassword}
+                  className="lms-input"
+                  onChange={handleChange}
+                />
+              </label>
+            </div>
+
+            <label>
+              <span>Vai trò</span>
+              <select name="role" value={formData.role} onChange={handleChange} className="lms-input">
+                <option value="admin">Tài khoản quản trị</option>
+              </select>
+            </label>
+
+            <button type="submit" disabled={isLoading} className="lms-btn lms-btn-primary lms-btn-block">
+              {isLoading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
+            </button>
+          </form>
+
+          <p className="lms-auth-note">
+            Đã có tài khoản? <Link href="/login">Đăng nhập ngay</Link>
           </p>
         </div>
-
-        {/* CỘT PHẢI: FORM ĐĂNG KÝ */}
-        <div className="w-full md:w-1/2 flex justify-center">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 lg:p-8 w-full max-w-md">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-emerald-600">Đăng Ký Tài Khoản</h2>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">* Họ và tên</label>
-                <input type="text" name="name" required placeholder="👤 Nhập họ và tên" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm bg-gray-50/50" onChange={handleChange} />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">* Tên đăng nhập</label>
-                <input type="text" name="username" required placeholder="👤 Nhập tên đăng nhập" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm bg-gray-50/50" onChange={handleChange} />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">* Email</label>
-                <input type="email" name="email" required placeholder="✉️ Nhập địa chỉ email" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm bg-gray-50/50" onChange={handleChange} />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">* Mật khẩu</label>
-                <input type="password" name="password" required placeholder="🔒 Nhập mật khẩu" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm bg-gray-50/50" onChange={handleChange} />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">* Xác nhận mật khẩu</label>
-                <input type="password" name="confirmPassword" required placeholder="🔒 Nhập lại mật khẩu" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none text-sm bg-gray-50/50" onChange={handleChange} />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Bạn là ai?</label>
-                <select name="role" onChange={handleChange} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-gray-50/50 font-semibold text-gray-700 cursor-pointer">
-                  <option value="">Tài khoản Admin --</option>
-                </select>
-              </div>
-
-              <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold py-3 rounded-lg hover:opacity-90 transition-opacity mt-6 text-sm shadow-lg shadow-emerald-200">
-                Đăng Ký
-              </button>
-            </form>
-
-            {message && (
-              <div className={`mt-4 text-center font-bold text-sm ${message.includes('🎉') ? 'text-emerald-600' : 'text-red-500'}`}>
-                {message}
-              </div>
-            )}
-
-            <div className="mt-6 text-center text-xs text-gray-500 border-t pt-4">
-              Đã có tài khoản? <Link href="/login" className="text-emerald-600 font-bold hover:underline">Đăng nhập ngay</Link>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

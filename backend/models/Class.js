@@ -14,7 +14,10 @@ const classSchema = new mongoose.Schema({
   students: { type: [String] },                         // Danh sách sinh viên tham gia
   onlineLink: { type: String },                         // Link học online
   description: { type: String },                        // Mô tả
-  status: { type: String, default: 'Hoạt động' }        
+  status: { type: String, default: 'Hoạt động' },
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Class', classSchema);

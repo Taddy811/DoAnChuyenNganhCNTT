@@ -12,7 +12,10 @@ const sessionSchema = new mongoose.Schema({
   duration: { type: Number },
   salaryEarned: { type: Number, default: 0 },
   status: { type: String, default: 'ongoing' },
-  source: { type: String, enum: ['manual', 'qr'], default: 'manual' }
+  source: { type: String, enum: ['manual', 'qr'], default: 'manual' },
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Session', sessionSchema);

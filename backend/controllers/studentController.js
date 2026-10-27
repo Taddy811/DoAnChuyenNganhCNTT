@@ -3,6 +3,7 @@ const Session = require('../models/Session');
 const Attendance = require('../models/Attendance');
 const SalaryHistory = require('../models/SalaryHistory');
 const mongoose = require('mongoose');
+const { activeFilter } = require('../utils/softDelete');
 
 const secretKey = process.env.QR_SECRET || 'LMS_QR_SECRET_2026'; // Phải khớp với khóa bên file instructor
 
@@ -22,12 +23,13 @@ exports.scanQRCode = async (req, res) => {
     }
 
     // 2. Tìm ca học hiện tại
-    const session = await Session.findById(decoded.sessionId).populate('classId');
+    const session = await Session.findOne({ _id: decoded.sessionId, ...activeFilter }).populate('classId');
     if (!session) return res.status(404).json({ message: 'Ca dạy không tồn tại!' });
     if (session.status === 'completed') return res.status(400).json({ message: 'Ca dạy này đã kết thúc!' });
 
     const cls = session.classId;
     if (!cls) return res.status(404).json({ message: 'Lớp học của ca dạy không còn tồn tại!' });
+    if (cls.isDeleted || cls.status === 'deleted') return res.status(404).json({ message: 'Lớp học không còn hoạt động!' });
 
     const registeredStudents = Array.isArray(cls.students) ? cls.students : [];
     const isEnrolled = registeredStudents.length === 0

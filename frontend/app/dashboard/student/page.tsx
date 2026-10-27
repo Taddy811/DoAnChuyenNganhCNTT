@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Scanner } from '@yudiel/react-qr-scanner'; // Thư viện quét QR
 import ProfileSettings from "@/components/ProfileSettings";
@@ -9,6 +8,149 @@ import ThemeToggle from "@/components/ThemeToggle";
 import StudentAssignments from "@/components/StudentAssignments";
 
 const scannerConstraints: MediaTrackConstraints = { facingMode: "environment" };
+
+type SidebarIconName =
+  | "logo"
+  | "overview"
+  | "qr"
+  | "assignments"
+  | "classes"
+  | "calendar"
+  | "history"
+  | "profile"
+  | "logout";
+
+const sidebarIconPaths: Record<SidebarIconName, ReactNode> = {
+  logo: (
+    <>
+      <path d="m4 8 8-4 8 4-8 4-8-4Z" />
+      <path d="m6 10 6 3 6-3" />
+      <path d="M8 12v4c2.4 1.7 5.6 1.7 8 0v-4" />
+    </>
+  ),
+  overview: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </>
+  ),
+  qr: (
+    <>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <path d="M14 14h2v2h-2z" />
+      <path d="M19 14h2v3" />
+      <path d="M14 19h3" />
+      <path d="M19 21h2" />
+    </>
+  ),
+  assignments: (
+    <>
+      <path d="M7 3h8l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+      <path d="M15 3v5h5" />
+      <path d="M9 13h6" />
+      <path d="M9 17h4" />
+    </>
+  ),
+  classes: (
+    <>
+      <path d="M3 21h18" />
+      <path d="M5 21V7l7-4 7 4v14" />
+      <path d="M9 21v-6h6v6" />
+      <path d="M9 10h.01" />
+      <path d="M15 10h.01" />
+      <path d="M9 13h.01" />
+      <path d="M15 13h.01" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="3" y="4" width="18" height="17" rx="2" />
+      <path d="M8 2v4" />
+      <path d="M16 2v4" />
+      <path d="M3 10h18" />
+      <path d="M8 14h.01" />
+      <path d="M12 14h.01" />
+      <path d="M16 14h.01" />
+      <path d="M8 18h.01" />
+      <path d="M12 18h.01" />
+    </>
+  ),
+  history: (
+    <>
+      <path d="M9 4h6l1 2h3v15H5V6h3l1-2Z" />
+      <path d="M9 12h6" />
+      <path d="M9 16h4" />
+      <path d="M9 4h6" />
+    </>
+  ),
+  profile: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21a8 8 0 0 1 16 0" />
+    </>
+  ),
+  logout: (
+    <>
+      <path d="M10 17l5-5-5-5" />
+      <path d="M15 12H3" />
+      <path d="M21 3v18h-6" />
+    </>
+  ),
+};
+
+function SidebarIcon({ name, className = "" }: { name: SidebarIconName; className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      {sidebarIconPaths[name]}
+    </svg>
+  );
+}
+
+function SidebarItem({
+  icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: SidebarIconName;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group flex w-full items-center gap-4 rounded-xl border px-4 py-3.5 text-left text-[15px] font-bold transition ${
+        active
+          ? "border-violet-200 bg-violet-50 text-violet-700 shadow-sm"
+          : "border-transparent text-slate-500 hover:border-violet-100 hover:bg-violet-50/60 hover:text-violet-700"
+      }`}
+    >
+      <span
+        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
+          active ? "bg-violet-100 text-violet-700" : "bg-slate-100 text-slate-500 group-hover:bg-violet-100 group-hover:text-violet-700"
+        }`}
+      >
+        <SidebarIcon name={icon} className="h-5 w-5" />
+      </span>
+      <span className="truncate">{label}</span>
+    </button>
+  );
+}
 
 export default function StudentDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -149,6 +291,7 @@ export default function StudentDashboard() {
         return;
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogout = () => {
@@ -341,7 +484,6 @@ export default function StudentDashboard() {
   
   const daysInCurrentMonth = getDaysInMonth(currentMonth, currentYear);
   const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
-  const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
   const dayNames = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
   
   const handlePrevMonth = () => { if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(currentYear - 1); } else setCurrentMonth(currentMonth - 1); };
@@ -419,18 +561,18 @@ export default function StudentDashboard() {
     activeTab === 'history' ? 'Lịch sử điểm danh' :
     'Thông tin cá nhân';
 
-  const studentNavItems = [
-    { id: 'dashboard', label: 'Tổng quan', icon: '⌂', action: () => setActiveTab('dashboard') },
-    { id: 'qr-scan', label: 'Quét QR', icon: '▣', action: openQrScanner },
-    { id: 'assignments', label: 'Bài tập online', icon: '▦', action: () => setActiveTab('assignments') },
-    { id: 'myclasses', label: 'Lớp học', icon: '▤', action: () => setActiveTab('myclasses') },
-    { id: 'schedule', label: 'Lịch học', icon: '□', action: () => setActiveTab('schedule') },
-    { id: 'history', label: 'Điểm danh', icon: '◷', action: () => { setActiveTab('history'); setHistoryFilterClassName(null); } },
-    { id: 'profile', label: 'Cá nhân', icon: '⚙', action: () => setActiveTab('profile') },
+  const studentNavItems: { id: string; label: string; icon: SidebarIconName; action: () => void }[] = [
+    { id: 'dashboard', label: 'Tổng quan', icon: 'overview', action: () => setActiveTab('dashboard') },
+    { id: 'qr-scan', label: 'Quét QR', icon: 'qr', action: openQrScanner },
+    { id: 'assignments', label: 'Bài tập online', icon: 'assignments', action: () => setActiveTab('assignments') },
+    { id: 'myclasses', label: 'Lớp học', icon: 'classes', action: () => setActiveTab('myclasses') },
+    { id: 'schedule', label: 'Lịch học', icon: 'calendar', action: () => setActiveTab('schedule') },
+    { id: 'history', label: 'Lịch sử điểm danh', icon: 'history', action: () => { setActiveTab('history'); setHistoryFilterClassName(null); } },
+    { id: 'profile', label: 'Cá nhân', icon: 'profile', action: () => setActiveTab('profile') },
   ];
 
   const dashboardStats = [
-    { label: 'Lớp đang học', value: totalClassesEnrolled, detail: 'Đã ghi danh', icon: '📚', color: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
+    { label: 'Lớp đang học', value: totalClassesEnrolled, detail: 'Đã ghi danh', icon: '📚', color: 'text-violet-700 bg-violet-50 border-violet-100' },
     { label: 'Hôm nay', value: totalClassesToday, detail: `${currentDayName}, ${todayStr}`, icon: '📅', color: 'text-sky-700 bg-blue-50 border-blue-100' },
     { label: 'Đã có mặt', value: totalAttended, detail: `${totalHistoryCount} lần điểm danh`, icon: '✓', color: 'text-green-700 bg-green-50 border-green-100' },
     { label: 'Tỷ lệ tham gia', value: `${attendanceRate}%`, detail: 'Theo lịch sử điểm danh', icon: '%', color: 'text-amber-700 bg-amber-50 border-amber-100' },
@@ -439,75 +581,78 @@ export default function StudentDashboard() {
   if (!user) return <div className="p-10 text-center">Đang tải dữ liệu sinh viên...</div>;
 
   return (
-    <div className="dashboard-theme flex h-screen bg-[#f4f7f6] font-sans text-gray-800">
+    <div className="dashboard-theme min-h-screen bg-[#f4f5fb] font-sans text-slate-800">
       
       {/* ================= SIDEBAR (STUDENT) ================= */}
-      <aside className="w-[228px] bg-white hidden md:flex flex-col shadow-sm z-10 shrink-0 border-r border-gray-100">
-        <div className="h-14 flex items-center px-4 border-b border-gray-100">
-          <div>
-            <div className="text-base font-extrabold text-[#1e293b] leading-tight">Student LMS</div>
-            <div className="text-[11px] font-semibold text-gray-400">Không gian học tập</div>
+      <aside className="border-b border-slate-200 bg-white lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:w-72 lg:border-b-0 lg:border-r">
+        <div className="flex h-20 items-center gap-3 px-5">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
+            <SidebarIcon name="logo" className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase text-violet-500">Không gian học tập</p>
+            <div className="truncate text-lg font-black leading-tight text-slate-800">Student LMS</div>
           </div>
         </div>
-        <nav className="flex-1 px-3 py-4 space-y-1">
+
+        <nav className="grid gap-2 px-4 pb-4 sm:grid-cols-2 lg:block lg:space-y-2 lg:overflow-y-auto lg:pb-0">
           {studentNavItems.map(item => (
-            <button
+            <SidebarItem
               key={item.id}
+              icon={item.icon}
+              label={item.label}
+              active={activeTab === item.id}
               onClick={item.action}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-bold transition-all border-l-4 ${
-                activeTab === item.id
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-600 shadow-sm'
-                  : 'text-gray-600 border-transparent hover:bg-gray-50'
-              }`}
-            >
-              <span className="w-6 h-6 rounded bg-gray-100 flex items-center justify-center text-[12px] shrink-0">{item.icon}</span>
-              <span className="truncate">{item.label}</span>
-            </button>
+            />
           ))}
         </nav>
-        <div className="p-3 border-t border-gray-100">
-          <button onClick={handleLogout} className="flex items-center gap-2 text-gray-600 hover:text-red-500 font-bold px-3 py-2 text-sm w-full rounded-md hover:bg-red-50 transition-colors">
-            <span>↗</span> Đăng xuất
+
+        <div className="hidden border-t border-slate-100 p-4 lg:block">
+          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-extrabold text-slate-500 transition hover:bg-rose-50 hover:text-rose-600">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-500">
+              <SidebarIcon name="logout" className="h-4 w-4" />
+            </span>
+            Đăng xuất
           </button>
         </div>
       </aside>
 
       {/* ================= MAIN CONTENT ================= */}
-      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+      <main className="lg:ml-72">
         
         {/* HEADER */}
-        <header className="h-14 bg-gradient-to-r from-emerald-600 to-teal-500 flex items-center justify-between px-5 shadow-sm shrink-0">
-          <div>
-            <h1 className="text-base font-bold text-white leading-tight">E-LEARNING LMS</h1>
-            <p className="text-[11px] text-white/80 font-semibold">{activeTabLabel}</p>
-          </div>
-          <div className="text-white text-sm font-semibold flex items-center gap-3">
+        <header className="sticky top-0 z-20 border-b border-slate-200 bg-[#f4f5fb]/95 px-4 py-4 backdrop-blur md:px-8">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <div>
+              <p className="text-sm font-bold text-slate-500">
+                Sinh viên <span className="mx-1 text-slate-300">/</span> <span className="text-slate-800">{activeTabLabel}</span>
+              </p>
+              <h1 className="mt-1 text-xl font-black leading-tight text-slate-800">{activeTabLabel}</h1>
+            </div>
+          <div className="flex flex-wrap items-center gap-3">
             <ThemeToggle />
-            <span className="hidden sm:inline">Sinh viên: {user.name}</span>
+            <span className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-600 shadow-sm">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-50 text-violet-600">🎓</span>
+              <span className="max-w-[220px] truncate">{user.email || user.name}</span>
+            </span>
+            <button onClick={handleLogout} className="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-extrabold text-rose-500 transition hover:bg-rose-50">Đăng xuất</button>
+          </div>
           </div>
         </header>
-        
-        {/* BREADCRUMB */}
-        <div className="bg-emerald-500 px-5 py-1.5 text-white/80 text-xs flex items-center shrink-0 shadow-sm">
-          <span>Sinh viên</span> <span className="mx-2">/</span> 
-          <span className="font-semibold text-white">
-            {activeTabLabel}
-          </span>
-        </div>
 
-        <div className="flex-1 p-4 overflow-y-auto relative bg-[#f4f7f6]">
+        <div className="min-h-[calc(100vh-81px)] bg-[#f4f5fb] px-4 py-5 md:px-8 md:py-6">
           
           {/* ================= TAB: QUÉT QR ================= */}
           {activeTab === 'qr-scan' && (
             <div className="max-w-2xl mx-auto mt-10">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-6 bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-center">
+                <div className="p-6 bg-gradient-to-r from-violet-600 to-indigo-500 text-white text-center">
                   <h2 className="text-2xl font-black mb-2 flex items-center justify-center gap-2"><span>📷</span> Quét mã QR</h2>
-                  <p className="text-emerald-100 text-sm">Đưa mã QR trên màn hình của Giảng viên vào khung hình bên dưới để tự động điểm danh.</p>
+                  <p className="text-violet-100 text-sm">Đưa mã QR trên màn hình của Giảng viên vào khung hình bên dưới để tự động điểm danh.</p>
                 </div>
                 
                 <div className="p-8 flex flex-col items-center">
-                  <div className="w-full max-w-sm aspect-square rounded-2xl overflow-hidden border-4 border-dashed border-emerald-500 relative bg-gray-50 flex items-center justify-center">
+                  <div className="w-full max-w-sm aspect-square rounded-2xl overflow-hidden border-4 border-dashed border-violet-500 relative bg-gray-50 flex items-center justify-center">
                     
                     {isCameraActive ? (
                     <Scanner
@@ -521,12 +666,12 @@ export default function StudentDashboard() {
                     />
                     ) : (
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-white p-6 text-center">
-                        <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-2xl font-black mb-4">▣</div>
+                        <div className="w-16 h-16 rounded-full bg-violet-50 text-violet-600 border border-violet-100 flex items-center justify-center text-2xl font-black mb-4">▣</div>
                         <div className="text-base font-extrabold text-gray-800 mb-2">Camera chưa bật</div>
                         <p className={`text-sm font-semibold leading-relaxed ${cameraError ? 'text-red-600' : 'text-gray-500'}`}>
                           {cameraError || 'Bấm nút bên dưới để mở camera và quét mã QR điểm danh.'}
                         </p>
-                        <button onClick={activateCamera} className="mt-5 px-5 py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition-colors">
+                        <button onClick={activateCamera} className="mt-5 px-5 py-2.5 rounded-md bg-violet-600 hover:bg-violet-700 text-white text-sm font-bold transition-colors">
                           Bật camera
                         </button>
                       </div>
@@ -564,12 +709,12 @@ export default function StudentDashboard() {
             <div className="max-w-7xl mx-auto space-y-4">
               <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                  <div className="text-xs font-bold text-emerald-600 uppercase tracking-wide mb-1">{currentDayName}, {todayStr}</div>
+                  <div className="text-xs font-bold text-violet-600 uppercase tracking-wide mb-1">{currentDayName}, {todayStr}</div>
                   <h2 className="text-xl font-extrabold text-gray-900 leading-tight">Chào {user.name}</h2>
                   <p className="text-sm text-gray-500 font-medium mt-1">Tổng quan nhanh lịch học, điểm danh và các lớp đang theo học.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={openQrScanner} className="px-4 py-2 rounded-md bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition-colors">Quét QR</button>
+                  <button onClick={openQrScanner} className="px-4 py-2 rounded-md bg-violet-600 text-white text-sm font-bold hover:bg-violet-700 transition-colors">Quét QR</button>
                   <button onClick={() => setActiveTab('schedule')} className="px-4 py-2 rounded-md bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-colors">Xem lịch</button>
                 </div>
               </section>
@@ -590,13 +735,13 @@ export default function StudentDashboard() {
               </section>
 
               <section className="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-4 items-start">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                     <div>
                       <h3 className="font-extrabold text-gray-900 text-base">Lịch hôm nay</h3>
                       <p className="text-xs text-gray-500 font-semibold">{totalClassesToday} buổi học</p>
                     </div>
-                    <button onClick={() => setActiveTab('schedule')} className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Chi tiết</button>
+                    <button onClick={() => setActiveTab('schedule')} className="text-xs font-bold text-violet-600 hover:text-violet-700">Chi tiết</button>
                   </div>
                   <div className="p-3 space-y-2">
                     {classesToday.length === 0 ? (
@@ -618,7 +763,7 @@ export default function StudentDashboard() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                     <div>
                       <h3 className="font-extrabold text-gray-900 text-base">Sắp tới</h3>
@@ -637,7 +782,7 @@ export default function StudentDashboard() {
                             <div className="text-xs text-gray-500 mt-1 truncate">{cls.subject}</div>
                             <div className="text-xs text-gray-500 mt-1">{daysOfWeek[cls.dateObj.getDay()]}, {cls.date}</div>
                           </div>
-                          <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-bold shrink-0">{cls.shift ? cls.shift.split(' (')[0] : 'Ca'}</span>
+                          <span className="px-2 py-1 rounded bg-violet-50 text-violet-700 border border-violet-100 text-xs font-bold shrink-0">{cls.shift ? cls.shift.split(' (')[0] : 'Ca'}</span>
                         </div>
                       ))
                     )}
@@ -646,16 +791,16 @@ export default function StudentDashboard() {
               </section>
 
               <section className="grid grid-cols-1 xl:grid-cols-[0.9fr_1.1fr] gap-4 items-start">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)] p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <h3 className="font-extrabold text-gray-900 text-base">Tình hình điểm danh</h3>
                       <p className="text-xs text-gray-500 font-semibold">Dựa trên lịch sử đã ghi nhận</p>
                     </div>
-                    <div className="text-2xl font-extrabold text-emerald-600">{attendanceRate}%</div>
+                    <div className="text-2xl font-extrabold text-violet-600">{attendanceRate}%</div>
                   </div>
                   <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-                    <div className="h-full rounded-full bg-emerald-600 transition-all" style={{ width: `${attendanceRate}%` }}></div>
+                    <div className="h-full rounded-full bg-violet-600 transition-all" style={{ width: `${attendanceRate}%` }}></div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 mt-4 text-center">
                     <div className="rounded-lg bg-green-50 border border-green-100 p-2"><div className="text-lg font-black text-green-700">{totalAttended}</div><div className="text-[11px] font-bold text-gray-500">Có mặt</div></div>
@@ -664,13 +809,13 @@ export default function StudentDashboard() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                     <div>
                       <h3 className="font-extrabold text-gray-900 text-base">Lớp đang học</h3>
                       <p className="text-xs text-gray-500 font-semibold">{myClasses.length} lớp</p>
                     </div>
-                    <button onClick={() => setActiveTab('myclasses')} className="text-xs font-bold text-emerald-600 hover:text-emerald-700">Xem tất cả</button>
+                    <button onClick={() => setActiveTab('myclasses')} className="text-xs font-bold text-violet-600 hover:text-violet-700">Xem tất cả</button>
                   </div>
                   <div className="divide-y divide-gray-100">
                     {myClasses.length === 0 ? (
@@ -690,7 +835,7 @@ export default function StudentDashboard() {
                             </div>
                             <div className="mt-2 flex items-center gap-2">
                               <div className="h-1.5 flex-1 rounded-full bg-gray-100 overflow-hidden">
-                                <div className="h-full rounded-full bg-emerald-600" style={{ width: `${percentage}%` }}></div>
+                                <div className="h-full rounded-full bg-violet-600" style={{ width: `${percentage}%` }}></div>
                               </div>
                               <span className="text-[11px] font-bold text-gray-500">{progress.attended}/{progress.total}</span>
                             </div>
@@ -707,15 +852,15 @@ export default function StudentDashboard() {
           {/* ================= TAB 2: LỚP HỌC CỦA TÔI ================= */}
           {activeTab === 'myclasses' && (
             <div className="max-w-7xl mx-auto space-y-4">
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-t-xl p-4 flex justify-between items-center shadow-md">
+              <div className="bg-gradient-to-r from-violet-600 to-indigo-500 text-white rounded-t-2xl p-4 flex justify-between items-center shadow-md">
                 <h2 className="text-lg font-bold flex items-center gap-2"><span>🏫</span> Lớp học của tôi</h2>
               </div>
 
-              <div className="bg-white p-4 rounded-b-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-4 rounded-b-2xl shadow-sm border border-gray-200">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
-                  <div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">🔍</span><input type="text" placeholder="Tìm kiếm lớp học, giảng viên..." value={mcSearch} onChange={e => setMcSearch(e.target.value)} className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-emerald-500 bg-white"/></div>
-                  <select value={mcShift} onChange={e => setMcShift(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm outline-none focus:border-emerald-500 text-gray-600 bg-white"><option value="">Tất cả ca học</option><option value="Ca 1">Ca 1</option><option value="Ca 2">Ca 2</option><option value="Ca 3">Ca 3</option><option value="Ca 4">Ca 4</option><option value="Ca 5">Ca 5</option><option value="Ca 6">Ca 6</option></select>
-                  <select value={mcSubject} onChange={e => setMcSubject(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm outline-none focus:border-emerald-500 text-gray-600 bg-white"><option value="">Tất cả môn học</option>{uniqueSubjectsMyClasses.map(sub => <option key={sub} value={sub}>{sub}</option>)}</select>
+                  <div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">🔍</span><input type="text" placeholder="Tìm kiếm lớp học, giảng viên..." value={mcSearch} onChange={e => setMcSearch(e.target.value)} className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 bg-white"/></div>
+                  <select value={mcShift} onChange={e => setMcShift(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 text-gray-600 bg-white"><option value="">Tất cả ca học</option><option value="Ca 1">Ca 1</option><option value="Ca 2">Ca 2</option><option value="Ca 3">Ca 3</option><option value="Ca 4">Ca 4</option><option value="Ca 5">Ca 5</option><option value="Ca 6">Ca 6</option></select>
+                  <select value={mcSubject} onChange={e => setMcSubject(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 text-gray-600 bg-white"><option value="">Tất cả môn học</option>{uniqueSubjectsMyClasses.map(sub => <option key={sub} value={sub}>{sub}</option>)}</select>
                   <button onClick={clearMcFilters} className="text-sm font-bold text-red-500 hover:text-red-700 h-fit py-2">Xóa bộ lọc</button>
                 </div>
 
@@ -738,13 +883,13 @@ export default function StudentDashboard() {
                               <td className="px-4 py-3 font-medium text-pink-700"><span className="bg-pink-50 border border-pink-100 px-2.5 py-1 rounded text-xs font-semibold">{cls.room || 'N/A'}</span></td>
                               <td className="px-4 py-3 font-medium text-gray-800 flex items-center gap-2"><div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold">👤</div><span>{cls.instructor}</span></td>
                               <td className="px-4 py-3 text-center font-bold text-orange-600"><span className="bg-orange-50 border border-orange-100 px-2 py-0.5 rounded text-xs uppercase">{cls.shift ? cls.shift.split(' (')[0] : 'N/A'}</span></td>
-                              <td className="px-4 py-3 font-medium text-emerald-600">📅 {cls.scheduleDays?.join(', ') || 'N/A'}</td>
+                              <td className="px-4 py-3 font-medium text-violet-600">📅 {cls.scheduleDays?.join(', ') || 'N/A'}</td>
                               <td className="px-4 py-3">
                                 <div className="flex items-center justify-between text-xs font-bold text-gray-600 mb-1.5"><span>{percentage.toFixed(0)}%</span><span>{progress.attended}/{progress.total} buổi</span></div>
-                                <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div className={`h-1.5 rounded-full transition-all ${percentage >= 100 ? 'bg-green-500' : 'bg-emerald-600'}`} style={{ width: `${percentage}%` }}></div></div>
+                                <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden"><div className={`h-1.5 rounded-full transition-all ${percentage >= 100 ? 'bg-green-500' : 'bg-violet-600'}`} style={{ width: `${percentage}%` }}></div></div>
                               </td>
                               <td className="px-4 py-3 text-center">
-                                <button onClick={() => handleViewAttendanceDetails(cls.name)} className="bg-white border border-emerald-600 text-emerald-600 hover:bg-emerald-50 px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm whitespace-nowrap mx-auto">
+                                <button onClick={() => handleViewAttendanceDetails(cls.name)} className="bg-white border border-violet-200 text-violet-600 hover:bg-violet-50 px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm whitespace-nowrap mx-auto">
                                    Xem lịch sử
                                 </button>
                               </td>
@@ -761,16 +906,16 @@ export default function StudentDashboard() {
 
           {/* ================= TAB 3: LỊCH HỌC CALENDAR & LIST ================= */}
           {activeTab === 'schedule' && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full relative">
-               <div className="p-4 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-t-xl flex justify-between items-center shadow-md shrink-0">
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-[0_12px_28px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col h-full relative">
+               <div className="p-4 bg-gradient-to-r from-violet-600 to-indigo-500 text-white rounded-t-2xl flex justify-between items-center shadow-md shrink-0">
                   <h2 className="text-lg font-bold flex items-center gap-2"><span className="text-xl">📅</span> Lịch học</h2>
                   <div className="flex bg-white/20 p-1 rounded-lg">
-                      <button onClick={() => setScheduleViewMode('calendar')} className={`px-4 py-1.5 rounded-md text-xs font-bold shadow-sm transition-colors ${scheduleViewMode === 'calendar' ? 'bg-white text-emerald-600' : 'text-white hover:bg-white/10'}`}>📅 Lịch</button>
-                      <button onClick={() => setScheduleViewMode('list')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-colors ${scheduleViewMode === 'list' ? 'bg-white text-emerald-600' : 'text-white hover:bg-white/10'}`}>🗂️ Danh sách</button>
+                      <button onClick={() => setScheduleViewMode('calendar')} className={`px-4 py-1.5 rounded-md text-xs font-bold shadow-sm transition-colors ${scheduleViewMode === 'calendar' ? 'bg-white text-violet-600' : 'text-white hover:bg-white/10'}`}>📅 Lịch</button>
+                      <button onClick={() => setScheduleViewMode('list')} className={`px-4 py-1.5 rounded-md text-xs font-bold transition-colors ${scheduleViewMode === 'list' ? 'bg-white text-violet-600' : 'text-white hover:bg-white/10'}`}>🗂️ Danh sách</button>
                   </div>
               </div>
 
-              <div className="bg-white p-4 rounded-b-xl shadow-sm border border-gray-200 flex-1 overflow-y-auto">
+              <div className="bg-white p-4 rounded-b-2xl shadow-sm border border-gray-200 flex-1 overflow-y-auto">
                 <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-gray-100">
                     <span className="text-sm font-bold text-gray-700">Bộ lọc:</span>
                     <div className="flex items-center gap-2 bg-gray-50 rounded-md border border-gray-200">
@@ -778,7 +923,7 @@ export default function StudentDashboard() {
                       <span className="text-gray-400">→</span>
                       <input type="date" value={scheduleEndDate} onChange={(e) => setScheduleEndDate(e.target.value)} className="bg-transparent px-2 py-2 text-sm outline-none text-gray-600"/>
                     </div>
-                    <select value={scheduleSubject} onChange={(e) => setScheduleSubject(e.target.value)} className="border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-emerald-500 text-gray-700 bg-gray-50 min-w-[200px]">
+                    <select value={scheduleSubject} onChange={(e) => setScheduleSubject(e.target.value)} className="border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 text-gray-700 bg-gray-50 min-w-[200px]">
                       <option value="">Tất cả môn học</option>
                       {uniqueSubjectsMyClasses.map(sub => <option key={sub} value={sub}>{sub}</option>)}
                     </select>
@@ -789,11 +934,11 @@ export default function StudentDashboard() {
 
                 {scheduleViewMode === 'calendar' ? (
                   <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-                    <div className="bg-emerald-600 p-3 flex justify-between items-center text-white">
+                    <div className="bg-violet-600 p-3 flex justify-between items-center text-white">
                       <div className="font-bold text-lg ml-2">tháng {currentMonth + 1} {currentYear}</div>
                       <div className="flex items-center gap-1 bg-white/20 rounded-lg p-1">
                         <button onClick={handlePrevMonth} className="px-3 py-1.5 hover:bg-white/10 rounded font-bold transition-colors">&lt;</button>
-                        <button onClick={handleToday} className="px-4 py-1.5 text-sm font-bold bg-white text-emerald-600 rounded hover:bg-gray-100 transition-colors">Hôm nay</button>
+                        <button onClick={handleToday} className="px-4 py-1.5 text-sm font-bold bg-white text-violet-600 rounded hover:bg-gray-100 transition-colors">Hôm nay</button>
                         <button onClick={handleNextMonth} className="px-3 py-1.5 hover:bg-white/10 rounded font-bold transition-colors">&gt;</button>
                       </div>
                     </div>
@@ -811,8 +956,8 @@ export default function StudentDashboard() {
                         const isToday = new Date().getDate() === dayNum && new Date().getMonth() === currentMonth && new Date().getFullYear() === currentYear;
 
                         return (
-                          <div key={dayNum} className={`bg-white p-2 min-h-[96px] flex flex-col gap-1 transition-colors hover:bg-emerald-50/20 ${isToday ? 'ring-2 ring-inset ring-emerald-600 bg-emerald-50/10' : ''}`}>
-                            <div className={`text-right text-xs font-bold ${isToday ? 'text-emerald-600' : 'text-gray-400'}`}>{dayNum}</div>
+                          <div key={dayNum} className={`bg-white p-2 min-h-[96px] flex flex-col gap-1 transition-colors hover:bg-violet-50/20 ${isToday ? 'ring-2 ring-inset ring-violet-600 bg-violet-50/10' : ''}`}>
+                            <div className={`text-right text-xs font-bold ${isToday ? 'text-violet-600' : 'text-gray-400'}`}>{dayNum}</div>
                             <div className="flex-1 space-y-1 overflow-y-auto no-scrollbar">
                               {sessionsOnThisDay.map((sess, sIdx) => {
                                 let colorClass = "border-gray-200 bg-gray-50 text-gray-700";
@@ -891,7 +1036,7 @@ export default function StudentDashboard() {
           {activeTab === 'history' && (
             <div className="max-w-7xl mx-auto space-y-4">
               
-              <div className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-t-xl p-4 flex flex-col gap-2 shadow-md">
+              <div className="bg-gradient-to-r from-violet-600 to-indigo-500 text-white rounded-t-2xl p-4 flex flex-col gap-2 shadow-md">
                 <div className="flex justify-between items-center w-full">
                   <div className="flex items-center gap-3">
                     {historyFilterClassName && (
@@ -913,13 +1058,13 @@ export default function StudentDashboard() {
                 </div>
               </div>
 
-              <div className="bg-white p-4 rounded-b-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-4 rounded-b-2xl shadow-sm border border-gray-200">
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
                   <div className="bg-white rounded-xl border border-gray-100 p-3 flex flex-col justify-center shadow-sm">
                     <div className="text-gray-500 font-semibold text-xs mb-1">Tổng buổi học</div>
-                    <div className="text-emerald-600 font-extrabold text-2xl flex items-center gap-2">
-                      <span className="text-emerald-500 text-2xl"></span> {hTotalSessions}
+                    <div className="text-violet-600 font-extrabold text-2xl flex items-center gap-2">
+                      <span className="text-violet-500 text-2xl"></span> {hTotalSessions}
                     </div>
                   </div>
                   
@@ -958,18 +1103,18 @@ export default function StudentDashboard() {
 
                 <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-gray-100">
                   <span className="text-sm font-bold text-gray-700">Bộ lọc:</span>
-                  <select value={historyFilterClassName || ""} onChange={(e) => setHistoryFilterClassName(e.target.value || null)} className="border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-emerald-500 text-gray-700 bg-gray-50 min-w-[150px]">
+                  <select value={historyFilterClassName || ""} onChange={(e) => setHistoryFilterClassName(e.target.value || null)} className="border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 text-gray-700 bg-gray-50 min-w-[150px]">
                     <option value="">Tất cả lớp học</option>
                     {myClasses.map(cls => <option key={cls._id} value={cls.name}>{cls.name}</option>)}
                   </select>
-                  <select value={historyFilterStatus} onChange={(e) => setHistoryFilterStatus(e.target.value)} className="border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-emerald-500 text-gray-700 bg-gray-50 min-w-[150px]">
+                  <select value={historyFilterStatus} onChange={(e) => setHistoryFilterStatus(e.target.value)} className="border border-gray-200 rounded-md px-3 py-2 text-sm outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100 text-gray-700 bg-gray-50 min-w-[150px]">
                     <option value="">Tất cả trạng thái</option>
                     <option value="Có mặt">Có mặt</option>
                     <option value="Vắng">Vắng</option>
                     <option value="Muộn">Muộn</option>
                   </select>
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 bg-white rounded-md border border-gray-200 focus-within:border-emerald-500 transition-colors">
+                    <div className="flex items-center gap-2 bg-white rounded-md border border-gray-200 focus-within:border-violet-500 transition-colors">
                       <input type="date" value={historyFilterStartDate} onChange={(e) => setHistoryFilterStartDate(e.target.value)} className="bg-transparent px-3 py-2 text-sm outline-none text-gray-600" title="Từ ngày"/>
                       <span className="text-gray-400">-</span>
                       <input type="date" value={historyFilterEndDate} onChange={(e) => setHistoryFilterEndDate(e.target.value)} className="bg-transparent px-3 py-2 text-sm outline-none text-gray-600" title="Đến ngày"/>
@@ -1011,7 +1156,7 @@ export default function StudentDashboard() {
                                 <div className="text-xs text-gray-500 mt-0.5">Ghi: {item.timestamp}</div>
                               </td>
                               <td className="px-4 py-3">
-                                 <div className="font-bold text-emerald-600">{item.className}</div>
+                                 <div className="font-bold text-violet-600">{item.className}</div>
                                  <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">📘 {item.subjectName}</div>
                               </td>
                               <td className="px-4 py-3 font-medium text-gray-800 flex items-center gap-2">

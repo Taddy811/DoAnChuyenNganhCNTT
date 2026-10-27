@@ -54,7 +54,7 @@ export default function ProfileSettings() {
       } else {
         setMessage({ type: 'error', text: data.message });
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Lỗi kết nối đến máy chủ!' });
     } finally {
       setLoading(false);
@@ -65,19 +65,19 @@ export default function ProfileSettings() {
 
   return (
     <div className="max-w-6xl mx-auto w-full animate-fade-in">
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* CỘT TRÁI: THẺ PROFILE */}
         <div className="xl:col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center text-center sticky top-6">
+          <div className="bg-white rounded-2xl shadow-[0_12px_28px_rgba(15,23,42,0.06)] border border-slate-200 p-8 flex flex-col items-center text-center sticky top-6">
             {/* Avatar */}
-            <div className="w-32 h-32 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-full flex items-center justify-center text-5xl text-white font-bold shadow-lg shadow-emerald-500/30 mb-5 border-4 border-white">
+            <div className="w-32 h-32 bg-gradient-to-tr from-violet-600 to-indigo-500 rounded-full flex items-center justify-center text-5xl text-white font-bold shadow-lg shadow-violet-500/25 mb-5 border-4 border-white">
               {name.charAt(0).toUpperCase() || "U"}
             </div>
             
             <h3 className="text-xl font-bold text-gray-800 mb-1">{user.name || "Chưa cập nhật tên"}</h3>
             <p className="text-sm text-gray-500 mb-4">{user.username || user.email}</p>
             
-            <span className="px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-xs font-extrabold uppercase tracking-widest border border-emerald-100">
+            <span className="px-4 py-1.5 bg-violet-50 text-violet-600 rounded-full text-xs font-extrabold uppercase tracking-widest border border-violet-100">
               {user.role === 'admin' ? 'Quản trị viên' : user.role === 'instructor' ? 'Giảng viên' : 'Học sinh'}
             </span>
           </div>
@@ -85,13 +85,13 @@ export default function ProfileSettings() {
 
         {/* CỘT PHẢI: FORM CHỈNH SỬA */}
         <div className="xl:col-span-2">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-[0_12px_28px_rgba(15,23,42,0.06)] border border-slate-200 overflow-hidden">
             <form onSubmit={handleSubmit}>
               
               {/* Header Form */}
-              <div className="px-8 py-5 border-b border-emerald-100 bg-gradient-to-r from-emerald-600 to-teal-500">
+              <div className="px-8 py-5 border-b border-violet-100 bg-gradient-to-r from-violet-600 to-indigo-500">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2"> Thông tin chi tiết </h3>
-            </div>
+              </div>
               <div className="p-8 space-y-8">
                 {/* Thông báo */}
                 {message.text && (
@@ -108,7 +108,7 @@ export default function ProfileSettings() {
                     type="text" 
                     value={name} 
                     onChange={e => setName(e.target.value)} 
-                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium text-gray-800" 
+                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:bg-white focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all font-medium text-gray-800" 
                   />
                 </div>
 
@@ -127,7 +127,7 @@ export default function ProfileSettings() {
                       value={oldPassword} 
                       onChange={e => setOldPassword(e.target.value)} 
                       placeholder="••••••••" 
-                      className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all text-gray-800" 
+                      className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:bg-white focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all text-gray-800" 
                     />
                   </div>
 
@@ -139,7 +139,7 @@ export default function ProfileSettings() {
                         value={newPassword} 
                         onChange={e => setNewPassword(e.target.value)} 
                         placeholder="••••••••" 
-                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all text-gray-800" 
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:bg-white focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all text-gray-800" 
                       />
                     </div>
                     <div>
@@ -149,7 +149,7 @@ export default function ProfileSettings() {
                         value={confirmPassword} 
                         onChange={e => setConfirmPassword(e.target.value)} 
                         placeholder="••••••••" 
-                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all text-gray-800" 
+                        className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:bg-white focus:border-violet-400 focus:ring-4 focus:ring-violet-100 transition-all text-gray-800" 
                       />
                     </div>
                   </div>
@@ -161,7 +161,7 @@ export default function ProfileSettings() {
                 <button 
                   type="submit" 
                   disabled={loading} 
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center gap-2"
+                  className="bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 px-8 rounded-xl text-sm transition-all shadow-lg shadow-violet-500/25 hover:shadow-violet-500/35 active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center gap-2"
                 >
                   {loading ? "⏳ Đang cập nhật..." : "Lưu thay đổi"}
                 </button>

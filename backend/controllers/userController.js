@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const SalaryHistory = require('../models/SalaryHistory');
 const Attendance = require('../models/Attendance');
+const { activeFilter } = require('../utils/softDelete');
 
 const normalizeRole = (role) => {
   const value = String(role || '').trim().toLowerCase();
@@ -84,7 +85,7 @@ exports.updateProfile = async (req, res) => {
       return res.status(400).json({ message: 'Mã tài khoản không hợp lệ!' });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({ _id: userId, ...activeFilter });
     if (!user) return res.status(404).json({ message: 'Không tìm thấy tài khoản!' });
 
     if (name) user.name = name;
